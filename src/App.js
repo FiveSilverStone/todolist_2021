@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextField, Typography, Button } from '@material-ui/core';
+import { TextField, Typography, Button, List, ListItem, ListItemText } from '@material-ui/core';
 import { KeyboardDatePicker, KeyboardTimePicker } from '@material-ui/pickers';
 import SaveIcon from '@material-ui/icons/Save';
 
@@ -13,19 +13,38 @@ class App extends React.Component{
       content: "",
       startDate: null,
       startTime: null,
+      endDate: null,
+      endTime: null,
     }
   }
 
+  checkValidate(){
+    const {
+      title, content, startDate,
+      startTime, endDate, endTime
+    } = this.state;
+    if(!title || !content || !startDate || !startTime || !endDate || !endTime){
+      return false
+    }
+    return true
+  }
+
   saveTodoList(){
-    const { todoList, title, content, startDate, startTime } = this.state;
-    todoList.push({title, content, startDate, startTime});
-    this.setState({ 
-      todoList,
-      title: "",
-      content: "",
-      startDate: null,
-      startTime: null,
-    });
+    if(this.checkValidate()){
+      const { todoList, title, content, startDate, startTime, endDate, endTime } = this.state;
+      todoList.push({title: title.trim(), content: content.trim(), startDate, startTime, endDate, endTime});
+      this.setState({ 
+        todoList,
+        // title: "",
+        // content: "",
+        // startDate: null,
+        // startTime: null,
+        // endDate: null,
+        // endTime: null,
+      });
+    }else{
+      alert("입력값을 확인해 주세요.");
+    }
   }
 
   render() {
@@ -67,6 +86,30 @@ class App extends React.Component{
               'aria-label': 'change time',
             }}
           />
+          <KeyboardDatePicker
+            disableToolbar
+            variant="inline"
+            format="yyyy/MM/DD"
+            margin="normal"
+            label="종료 예정일"
+            value={this.state.endDate}
+            onChange={(value)=> this.setState({endDate:value})} 
+            style = {{width: '50%'}}     
+            KeyboardButtonProps={{
+              'aria-label': 'change date',
+            }}
+          />
+          <KeyboardTimePicker
+            margin="normal"
+            label="종료시간"
+            variant="inline"
+            value={this.state.endTime}
+            onChange={(value)=> this.setState({endTime:value})} 
+            style = {{width: '50%'}}   
+            KeyboardButtonProps={{
+              'aria-label': 'change time',
+            }}
+          />
           <Button
             variant="outlined"
             startIcon={<SaveIcon />}
@@ -76,7 +119,23 @@ class App extends React.Component{
             Save
           </Button>
         </div>
-        <div className="list_area">리스트 영역</div>
+        <div className="list_area">
+          <List>
+            {this.state.todoList.map((todoItem, idx) => {
+              const {
+                title, content, startDate, startTime, endDate, endTime
+              } = todoItem;
+              return (
+                <ListItem key={idx} role={undefined} dense button>
+                  <ListItemText
+                    primary={title}
+                    secondary={startDate?.format('yyyy-MM-DD')+' '+startTime?.format('HH:MM')+' ~ '+endDate?.format('yyyy-MM-DD')+' '+endTime?.format('HH:MM')}
+                  />
+                </ListItem>
+              )
+            })}
+          </List>
+        </div>
         <Typography variant="body2" color="textSecondary" align="center">
           {'Copyright © 홍길동 '+new Date().getFullYear()+'.'}         
         </Typography>
